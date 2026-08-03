@@ -67,6 +67,10 @@ class Variant(BaseModel):
     variant_id: str
     keywords: list[str] = Field(default_factory=list)
     label: str | None = None
+    # Slots this variant absorbs. A condensed variant that folds two bullets into one
+    # declares the slots it covers, so selecting it implies dropping them. Undeclared
+    # overlap between slots is an authoring bug and fails `test_library_integrity`.
+    supersedes: list[int] = Field(default_factory=list)
     text: str
 
     @model_validator(mode="after")

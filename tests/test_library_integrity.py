@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from suitup.library.overlap import overlaps_against_essential, overlaps_in_render
 from suitup.models import BulletRole, Listing, ListingType, Template
 
 LIBRARY = Path(__file__).resolve().parent.parent / "library"
@@ -91,6 +92,34 @@ class TestListings:
                         f"needs a label"
                     )
 
+    def test_essential_bullets_are_not_restated_as_variants(self, listings):
+        # An essential bullet renders in every tailoring, so overlapping one is repetition
+        # the user sees on every single resume regardless of what got selected. This is
+        # the strict check: it catches an essential bullet silently rewritten as a
+        # flexible variant elsewhere in the same listing.
+        offenders = [
+            str(o) for listing in listings.values() for o in overlaps_against_essential(listing)
+        ]
+        assert not offenders, "essential bullet restated elsewhere:\n  " + "\n  ".join(offenders)
+
+    def test_supersedes_points_at_real_flexible_slots(self, listings):
+        for listing in listings.values():
+            slots = {b.slot: b for b in listing.bullets}
+            for bullet in listing.bullets:
+                for variant in bullet.variants:
+                    for target in variant.supersedes:
+                        assert target in slots, (
+                            f"{listing.id} {variant.variant_id} supersedes slot {target}, "
+                            f"which does not exist"
+                        )
+                        assert (
+                            target != bullet.slot
+                        ), f"{listing.id} {variant.variant_id} supersedes its own slot"
+                        assert slots[target].role is BulletRole.FLEXIBLE, (
+                            f"{listing.id} {variant.variant_id} supersedes slot {target}, "
+                            f"which is essential and can never be dropped"
+                        )
+
 
 class TestTemplates:
     def test_every_template_file_parses(self, templates):
@@ -118,6 +147,36 @@ class TestTemplates:
                     assert variant_id in available, (
                         f"{template.id}/{listing_id} slot {slot}: no variant "
                         f"{variant_id!r} (have {sorted(available)})"
+                    )
+
+    def test_no_template_renders_repeated_content(self, templates, listings):
+        # The strict, selection-aware check. Two variants overlapping in the library is
+        # only a defect if some template actually puts both on the page — which is what
+        # a reader would see.
+        offenders = [
+            f"{template.id}: {overlap}"
+            for template in templates.values()
+            for listing_id in template.listing_ids
+            for overlap in overlaps_in_render(
+                listings[listing_id], template.default_variants.get(listing_id, {})
+            )
+        ]
+        assert not offenders, "templates rendering repeated content:\n  " + "\n  ".join(offenders)
+
+    def test_selected_variants_do_not_supersede_each_other(self, templates, listings):
+        # A variant that absorbs another slot must not be selected alongside the slot it
+        # absorbs, or the merged bullet and the original both appear.
+        for template in templates.values():
+            for listing_id, chosen in template.default_variants.items():
+                listing = listings[listing_id]
+                for slot, variant_id in chosen.items():
+                    variant = next(
+                        v for v in listing.bullet(slot).variants if v.variant_id == variant_id
+                    )
+                    clashes = set(variant.supersedes) & set(chosen)
+                    assert not clashes, (
+                        f"{template.id}/{listing_id}: {variant_id} supersedes slot(s) "
+                        f"{sorted(clashes)}, which the template also selects"
                     )
 
     def test_templates_respect_the_configured_caps(self, templates, listings):

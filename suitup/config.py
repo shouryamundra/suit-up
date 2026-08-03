@@ -201,6 +201,45 @@ def parse_override(spec: str) -> tuple[str, RoleBinding]:
     return role, RoleBinding(provider=provider, model=model)
 
 
+def set_role_binding(role: str, binding: RoleBinding, root: Path | None = None) -> Path:
+    """Persist a role's provider and model into models.yaml, in place.
+
+    Uses round-trip YAML so the file's comments and layout survive — models.yaml is
+    documentation as much as configuration, and rewriting it with a plain dumper would
+    strip every explanation in it.
+
+    Clears `temperature` and `max_tokens` on the changed role: a value tuned for one model
+    is not automatically right for another, and the router's per-role default is a safer
+    starting point than a stale override.
+    """
+    from ruamel.yaml import YAML
+
+    root = root or _find_root()
+    path = root / "models.yaml"
+
+    yaml_rt = YAML()
+    yaml_rt.preserve_quotes = True
+    data = yaml_rt.load(path.read_text())
+
+    if role not in KNOWN_ROLES:
+        raise ConfigError(f"unknown role {role!r}; known roles: {sorted(KNOWN_ROLES)}")
+    if binding.provider not in (data.get("providers") or {}):
+        raise ConfigError(
+            f"unknown provider {binding.provider!r}; "
+            f"defined providers: {sorted((data.get('providers') or {}))}"
+        )
+
+    entry = data["roles"][role]
+    entry["provider"] = binding.provider
+    entry["model"] = binding.model
+    for tuned in ("temperature", "max_tokens"):
+        entry.pop(tuned, None)
+
+    with path.open("w") as fh:
+        yaml_rt.dump(data, fh)
+    return path
+
+
 def load_config(
     root: Path | None = None,
     overrides: list[str] | None = None,
