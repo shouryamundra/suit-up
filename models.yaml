@@ -35,6 +35,15 @@ settings:
   # makes that nominal, so it is rejected at load time. Set false to allow it anyway.
   require_blind_critique: true
 
+# Measured from the three source resumes, all of which fit one page: each carries exactly
+# 2 experience and 2 project listings, with at most 4 bullets on an experience entry.
+# These are starting points — revisit once real runs show how often they overflow.
+caps:
+  max_experience: 2
+  max_projects: 2
+  max_bullets_per_listing: 4
+  delta_margin: 0.15
+
 roles:
   # Extraction and structured judgment. Schema adherence matters more than prose here.
   jd_analyst:

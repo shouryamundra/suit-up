@@ -140,6 +140,53 @@ class TestDraftBulletProvenance:
         assert bullet.generation_mode is GenerationMode.SYNTHESIS
 
 
+class TestListingTypes:
+    def test_only_experience_and_projects_compete_for_space(self):
+        # The count caps exist to fit one page. Structural sections are always present,
+        # so counting them against the cap would silently squeeze out real content.
+        assert ListingType.EXPERIENCE.competes_for_space
+        assert ListingType.PROJECT.competes_for_space
+        assert not ListingType.SKILLS.competes_for_space
+        assert not ListingType.EDUCATION.competes_for_space
+        assert not ListingType.ACHIEVEMENTS.competes_for_space
+
+    def test_dated_listings_require_context(self):
+        with pytest.raises(ValidationError, match="requires `context`"):
+            Listing(
+                id="x",
+                type=ListingType.EXPERIENCE,
+                title="t",
+                bullets=[Bullet(slot=1, role=BulletRole.ESSENTIAL, text="a")],
+            )
+
+    def test_structural_listings_render_without_context(self):
+        listing = Listing(
+            id="technical_skills",
+            type=ListingType.SKILLS,
+            title="Technical Skills",
+            bullets=[Bullet(slot=1, role=BulletRole.ESSENTIAL, label="Languages", text="C++")],
+        )
+        assert listing.context is None
+
+    def test_variant_label_overrides_slot_label(self):
+        # A skills slot is not one category with different contents — across tailorings it
+        # is a different category heading entirely.
+        bullet = Bullet(
+            slot=2,
+            role=BulletRole.FLEXIBLE,
+            label="Fallback",
+            variants=[
+                Variant(variant_id="v1", label="Systems and Concurrency", text="Mutexes"),
+                Variant(variant_id="v2", label="ML and Computer Vision", text="PyTorch"),
+            ],
+        )
+        assert [v.label for v in bullet.variants] == [
+            "Systems and Concurrency",
+            "ML and Computer Vision",
+        ]
+        assert bullet.label == "Fallback"
+
+
 class TestCritiqueSeverity:
     def _issue(self, severity):
         return CritiqueIssue(category="repetition", severity=severity, detail="d")

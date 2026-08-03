@@ -38,15 +38,35 @@ class BulletRole(str, Enum):
 
 
 class ListingType(str, Enum):
+    """What kind of section a listing renders into.
+
+    Only `experience` and `project` compete for space under the count caps — the rest are
+    structural and always present, but they still live in the library so their content can
+    be tailored and version-controlled the same way.
+    """
+
+    EDUCATION = "education"
     EXPERIENCE = "experience"
     PROJECT = "project"
+    SKILLS = "skills"
+    ACHIEVEMENTS = "achievements"
+
+    @property
+    def competes_for_space(self) -> bool:
+        return self in {ListingType.EXPERIENCE, ListingType.PROJECT}
 
 
 class Variant(BaseModel):
-    """One pre-approved phrasing of a flexible bullet, tagged for lexical matching."""
+    """One pre-approved phrasing of a flexible bullet, tagged for lexical matching.
+
+    `label` overrides the parent slot's label when the row's heading changes with the
+    variant — a skills slot might be "Systems and Concurrency" in one tailoring and
+    "ML and Computer Vision" in another, not merely different content under one name.
+    """
 
     variant_id: str
     keywords: list[str] = Field(default_factory=list)
+    label: str | None = None
     text: str
 
     @model_validator(mode="after")
@@ -62,10 +82,15 @@ class Bullet(BaseModel):
 
     An essential bullet carries `text` directly. A flexible bullet carries `variants` and
     no text of its own — the selector picks which variant fills the slot.
+
+    `label` names the slot when the section renders as labelled rows rather than bullets
+    — the skills section uses it for category names ("Languages", "Systems and
+    Concurrency"). Ignored by experience and project listings.
     """
 
     slot: int
     role: BulletRole
+    label: str | None = None
     text: str | None = None
     variants: list[Variant] = Field(default_factory=list)
 
@@ -89,9 +114,18 @@ class Bullet(BaseModel):
 
 
 class ListingContext(BaseModel):
+    """The heading line of a listing: who, when, where.
+
+    Absent on structural sections (skills, achievements) that render as a bare section
+    with no dated heading.
+    """
+
     org: str
     dates: str
     location: str | None = None
+    # Rendered after the title for projects, e.g. "Java, RabbitMQ, Concurrency, REST".
+    # Varies by tailoring, which is why it is here rather than baked into the title.
+    stack: str | None = None
 
 
 class ListingMetadata(BaseModel):
@@ -109,7 +143,7 @@ class Listing(BaseModel):
     id: str
     type: ListingType
     title: str
-    context: ListingContext
+    context: ListingContext | None = None
     tags: list[str] = Field(default_factory=list)
     bullets: list[Bullet]
     metadata: ListingMetadata = Field(default_factory=ListingMetadata)
@@ -121,6 +155,10 @@ class Listing(BaseModel):
             raise ValueError(f"{self.id}: duplicate slot numbers {slots}")
         if not self.bullets:
             raise ValueError(f"{self.id}: listing has no bullets")
+        # Dated sections need a heading; structural ones render without one.
+        if self.type.competes_for_space or self.type is ListingType.EDUCATION:
+            if self.context is None:
+                raise ValueError(f"{self.id}: {self.type.value} listing requires `context`")
         return self
 
     def bullet(self, slot: int) -> Bullet:
