@@ -151,70 +151,62 @@ Structured YAML per listing, each bullet marked `source: essential`, `selected`,
 
 ## 12. Example library entry
 
+Fictional, so this document carries no personal resume content. The shape is what matters.
+
 ```yaml
-id: aruw_lead_swe_2025
+id: backend_intern
 type: experience
-title: "Lead Software Engineer, Vision Team"
+title: "Software Engineering Intern"
 context:
-  org: "Advanced Robotics at UW (ARUW)"
-  dates: "Oct. 2025 - Present"
-tags: [robotics, computer-vision, leadership, ros2]
+  org: "Example Systems Inc."
+  dates: "Jun. 2026 - Sept. 2026"
+tags: [backend, distributed-systems, performance, testing]
 
 bullets:
   - slot: 1
     role: essential
     text: >
-      Led a 15-engineer software team developing autonomous targeting,
-      navigation, and localization for ARUW's RoboMaster robot, while
-      directing the migration to a distributed ROS 2 architecture with
-      standardized message schemas and pub/sub interfaces.
+      Built and shipped features across a Python service handling 40M daily
+      API requests.
 
   - slot: 2
     role: flexible
     variants:
-      - variant_id: v1_cv_metrics
-        keywords: [object detection, YOLO, mAP, active learning, computer vision]
+      - variant_id: v1_latency
+        keywords: [caching, p99 latency, performance, profiling]
         text: >
-          Increased YOLO object detector mAP@0.5 from 82% to 89% on 3,500+
-          annotated images by designing a dual-branch loss function for joint
-          color and digit classification, reducing annotation effort 25%
-          through an active-learning pipeline.
-      - variant_id: v2_ml_systems
-        keywords: [machine learning pipeline, data labeling, applied ML]
+          Cut p99 endpoint latency 45% (820ms to 450ms) by introducing a
+          read-through cache and removing three redundant database round
+          trips per request.
+      - variant_id: v2_throughput
+        keywords: [throughput, scalability, load testing, concurrency]
         text: >
-          Improved production object detection accuracy 7 points through
-          an active-learning-driven labeling pipeline and a custom
-          multi-task loss function, cutting manual annotation effort by 25%.
+          Doubled sustained write throughput by batching inserts behind a
+          bounded queue, verified under load testing at 3x peak production
+          traffic.
 
   - slot: 3
     role: flexible
     variants:
-      - variant_id: v1_perf_embedded
-        keywords: [TensorRT, inference latency, Jetson, embedded, real-time systems]
+      - variant_id: v1_testing
+        keywords: [testing, CI/CD, code coverage, regression]
         text: >
-          Reduced inference latency 30% (9.0 ms to 6.3 ms) while sustaining
-          60 FPS on Jetson Nano by deploying a TensorRT FP16 inference engine.
-      - variant_id: v2_robotics_localization
-        keywords: [localization, particle filter, AMCL, autonomous navigation, SLAM]
-        text: >
-          Mitigated the kidnapped robot problem by implementing AMCL
-          particle-filter localization, achieving pose convergence within
-          plus or minus 10 cm in under 8 seconds after global localization
-          failures.
+          Raised service test coverage from 34% to 81% and wired the suite
+          into CI, catching two regressions before release in the first month.
 
 metadata:
   approved: true
   last_used: null
-  last_reviewed: "2026-07-27"
+  last_reviewed: "2026-08-03"
 ```
 
 `configurations.json` entry once this exact composition has been reviewed:
 
 ```json
 {
-  "aruw_lead_swe_2025|slot1:essential|slot2:v1_cv_metrics|slot3:v2_robotics_localization": {
+  "backend_intern|slot1:essential|slot2:v1_latency|slot3:v1_testing": {
     "approved": true,
-    "reviewed_at": "2026-07-27"
+    "reviewed_at": "2026-08-03"
   }
 }
 ```

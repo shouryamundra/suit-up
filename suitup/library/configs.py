@@ -6,7 +6,7 @@ and a key that varies with dict ordering or whitespace would never hit.
 
 Key format, fixed by the seeds written during bootstrap:
 
-    listing key   aruw_lead_swe_2025|slot1:essential|slot2:v1_ros2_pubsub
+    listing key   backend_intern|slot1:essential|slot2:v1_latency
     resume key    <listing key>||<listing key>||...
 
 Slots ascend numerically within a listing. Essential slots are always present and always

@@ -125,8 +125,8 @@ Evaluate against these criteria and report issues with `severity` of `major` or 
 
 ## How to report
 
-Be specific and cite. "Repetition" is useless; "both `aruw_lead_swe_2025` slot 2 and
-`prl_sensor_fusion_2025` slot 1 say 'real-time autonomous navigation'" is actionable.
+Be specific and cite. "Repetition" is useless; "both `backend_intern` slot 2 and
+`queue_project` slot 1 say 'bounded memory under bursty load'" is actionable.
 Name the listing and slot on every issue you can localise.
 
 Calibrate severity honestly. **Major** is anything ungrounded, plus repetition or

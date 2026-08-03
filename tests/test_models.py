@@ -24,10 +24,10 @@ from suitup.models import (
 
 def make_listing(**overrides):
     base = dict(
-        id="aruw_lead_swe_2025",
+        id="backend_intern",
         type=ListingType.EXPERIENCE,
         title="Lead Software Engineer",
-        context=ListingContext(org="ARUW", dates="Oct 2025 - Present"),
+        context=ListingContext(org="Example Systems Inc.", dates="Jun. 2026 - Sept. 2026"),
         bullets=[
             Bullet(slot=1, role=BulletRole.ESSENTIAL, text="Led a 15-engineer team."),
             Bullet(
