@@ -106,10 +106,12 @@ class Paths(BaseModel):
     library: Path
     listings: Path
     templates: Path
+    profile: Path
     configurations: Path
     pending_variants: Path
     index: Path
-    latex_template: Path
+    latex_dir: Path
+    latex_template_name: str
     runs: Path
 
     @classmethod
@@ -120,12 +122,18 @@ class Paths(BaseModel):
             library=library,
             listings=library / "listings",
             templates=library / "templates",
+            profile=library / "profile.yaml",
             configurations=library / "configurations.json",
             pending_variants=library / "pending_variants.yaml",
             index=library / "index.json",
-            latex_template=root / "templates" / "latex" / "resume.tex.j2",
+            latex_dir=root / "templates" / "latex",
+            latex_template_name="resume.tex.j2",
             runs=root / "runs",
         )
+
+    @property
+    def latex_template(self) -> Path:
+        return self.latex_dir / self.latex_template_name
 
 
 class Config(BaseModel):

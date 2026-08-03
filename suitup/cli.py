@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+from pathlib import Path
+
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -182,6 +185,105 @@ def models_available(
 
 
 app.add_typer(models_app, name="models")
+
+
+library_app = typer.Typer(help="Inspect and render the component library.", no_args_is_help=True)
+
+
+@library_app.command("check")
+def library_check() -> None:
+    """Validate the library and report what it contains."""
+    from suitup.library.configs import ConfigurationCache
+    from suitup.library.loader import LibraryError, load_library
+    from suitup.library.overlap import overlaps_against_essential
+
+    config = _load()
+    try:
+        library = load_library(config.paths)
+    except LibraryError as exc:
+        console.print(f"[red]Library error:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    counts: dict[str, int] = {}
+    for listing in library.listings.values():
+        counts[listing.type.value] = counts.get(listing.type.value, 0) + 1
+
+    table = Table(title="Library", header_style="bold")
+    table.add_column("Section")
+    table.add_column("Count", justify="right")
+    for kind, count in sorted(counts.items()):
+        table.add_row(kind, str(count))
+    table.add_row("templates", str(len(library.templates)))
+    table.add_row(
+        "approved compositions", str(len(ConfigurationCache.load(config.paths.configurations)))
+    )
+    console.print(table)
+
+    repeated = [
+        str(o) for listing in library.listings.values() for o in overlaps_against_essential(listing)
+    ]
+    if repeated:
+        console.print("\n[yellow]Essential bullets restated elsewhere:[/yellow]")
+        for line in repeated:
+            console.print(f"  {line}")
+        raise typer.Exit(code=1)
+
+    console.print("\n[green]Library is valid.[/green]")
+
+
+@library_app.command("render")
+def library_render(
+    template_id: str = typer.Argument(..., help="Template id, e.g. systems_quant."),
+    out: Path = typer.Option(
+        None, "--out", "-o", help="Directory for the .tex and .pdf. Defaults to a run folder."
+    ),
+    compile_pdf: bool = typer.Option(True, "--compile/--no-compile", help="Run xelatex."),
+) -> None:
+    """Render a template's default composition and compile it.
+
+    The whole deterministic path with no model involved: library -> draft -> LaTeX -> PDF.
+    """
+    from suitup.library.compose import draft_from_template
+    from suitup.library.loader import LibraryError, load_library
+    from suitup.render.compiler import CompilerNotFound, compile_tex
+    from suitup.render.formatter import render as render_tex
+
+    config = _load()
+    try:
+        library = load_library(config.paths)
+        draft = draft_from_template(library, template_id)
+    except LibraryError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=2) from exc
+
+    tex = render_tex(draft, library, config.paths.latex_dir, config.paths.latex_template_name)
+    out_dir = out or config.paths.runs / f"{datetime.now():%Y-%m-%d-%H%M%S}-{template_id}"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    if not compile_pdf:
+        (out_dir / "resume.tex").write_text(tex)
+        console.print(f"Wrote [bold]{out_dir / 'resume.tex'}[/bold]")
+        return
+
+    try:
+        result = compile_tex(tex, out_dir)
+    except CompilerNotFound as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=2) from exc
+
+    if not result.ok:
+        console.print(f"[red]Compile failed:[/red]\n{result.error_log}")
+        console.print(f"\nArtifacts in {out_dir}")
+        raise typer.Exit(code=1)
+
+    colour = "green" if result.page_count == 1 else "yellow"
+    console.print(
+        f"[{colour}]{template_id}: {result.page_count} page(s)[/{colour}]  {result.pdf_path}"
+    )
+    raise typer.Exit(code=0 if result.page_count == 1 else 1)
+
+
+app.add_typer(library_app, name="library")
 
 
 @app.command("run")
