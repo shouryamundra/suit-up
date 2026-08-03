@@ -115,8 +115,14 @@ class Paths(BaseModel):
     runs: Path
 
     @classmethod
-    def from_root(cls, root: Path) -> Paths:
-        library = root / "library"
+    def from_root(cls, root: Path, library_dir: Path | None = None) -> Paths:
+        """Locate everything from the project root.
+
+        `library_dir` decouples the library from the project so the real one can stay
+        untracked on disk while the test suite and a fresh clone run against the example
+        in `examples/library`. Overridable with the SUITUP_LIBRARY environment variable.
+        """
+        library = library_dir or Path(os.environ.get("SUITUP_LIBRARY", root / "library"))
         return cls(
             root=root,
             library=library,

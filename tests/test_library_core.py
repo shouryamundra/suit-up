@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 
 import pytest
+
+from tests.conftest import all_template_ids
 import yaml
 
 from suitup.config import Paths
@@ -64,9 +66,9 @@ class TestLoader:
 
     def test_selectable_excludes_structural_sections(self, library):
         ids = {listing.id for listing in library.selectable}
-        assert "technical_skills" not in ids
-        assert "education_uw" not in ids
-        assert "aruw_lead_swe_2025" in ids
+        assert "skills" not in ids
+        assert "education_state_u" not in ids
+        assert "backend_intern" in ids
 
     def test_unknown_listing_names_what_exists(self, library):
         with pytest.raises(LibraryError, match="unknown listing"):
@@ -179,9 +181,11 @@ class TestConfigurationCache:
         cache = ConfigurationCache.load(tmp_path / "nope.json")
         assert len(cache) == 0
 
-    def test_reads_the_real_seeds(self, paths):
+    def test_reads_the_real_seeds(self, paths, library):
+        # Count is derived, not hardcoded: one approved seed per template, so adding a
+        # career direction should not require editing this test.
         cache = ConfigurationCache.load(paths.configurations)
-        assert len(cache) == 3
+        assert len(cache) == len(library.templates)
         assert all(cache.is_approved(key) for key in json.loads(paths.configurations.read_text()))
 
     def test_unknown_key_is_not_approved(self, paths):
@@ -248,11 +252,11 @@ class TestCompose:
             resolve_selection(lib, "demo_role", {99: "v1"})
 
     def test_draft_preserves_requested_listing_order(self, library):
-        ids = ["achievements", "education_uw"]
+        ids = ["awards", "education_state_u"]
         draft = draft_from_selection(library, ids, {})
         assert [dl.listing_id for dl in draft.listings] == ids
 
-    @pytest.mark.parametrize("template_id", ["systems_quant", "ml_robotics", "swe_infra"])
+    @pytest.mark.parametrize("template_id", all_template_ids())
     def test_every_template_composes(self, library, template_id):
         draft = draft_from_template(library, template_id)
         assert draft.listings

@@ -1,8 +1,9 @@
 """Shared fixtures.
 
-Tests run against the real library where they are checking the real library, and against
-small hand-built fixtures where they are checking logic — a scoring test that depends on
-the user's actual bullets would break every time a variant is reworded.
+Tests run against the fictional library in `examples/library`, never the user's real one.
+The real library holds personal data and is untracked, so a fresh clone would have nothing
+to test against — and assertions on real bullets would break every time one was reworded.
+Pure-logic tests use the even smaller hand-built fixtures below.
 """
 
 from __future__ import annotations
@@ -25,10 +26,19 @@ from suitup.models import (
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+# Tests run against the example library, never the user's real one. The real library holds
+# personal data and is untracked, so a fresh clone would have nothing to test against; and
+# tests that asserted on real bullets would break every time one was reworded.
+EXAMPLE_LIBRARY = PROJECT_ROOT / "examples" / "library"
+
+# Canonical ids from the example library, so tests never name real-library content.
+PRIMARY_TEMPLATE = "backend"
+PRIMARY_EXPERIENCE = "backend_intern"
+
 
 @pytest.fixture(scope="session")
 def paths() -> Paths:
-    return Paths.from_root(PROJECT_ROOT)
+    return Paths.from_root(PROJECT_ROOT, library_dir=EXAMPLE_LIBRARY)
 
 
 @pytest.fixture(scope="session")
@@ -40,6 +50,17 @@ def config():
 def library(paths):
     """The real library. Used by integration-flavoured tests."""
     return load_library(paths)
+
+
+def all_template_ids() -> list[str]:
+    """Every template on disk, for parametrising at collection time.
+
+    Derived rather than hardcoded so adding a career direction is automatically covered by
+    the compile and composition tests instead of silently skipping them.
+    """
+    return sorted(
+        load_library(Paths.from_root(PROJECT_ROOT, library_dir=EXAMPLE_LIBRARY)).templates
+    )
 
 
 @pytest.fixture

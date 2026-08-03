@@ -44,11 +44,12 @@ settings:
   # makes that nominal, so it is rejected at load time. Set false to allow it anyway.
   require_blind_critique: true
 
-# Measured from the three source resumes, all of which fit one page: each carries exactly
-# 2 experience and 2 project listings, with at most 4 bullets on an experience entry.
-# These are starting points — revisit once real runs show how often they overflow.
+# Measured from the source resumes, all of which fit one page. The engineering tailorings
+# carry 2 experience and 2 projects; the product tailoring carries 3 experience and 1
+# project, which is what raised max_experience from 2. Total bullets, not the split, is
+# what actually decides the page — revisit once real runs show how often they overflow.
 caps:
-  max_experience: 2
+  max_experience: 3
   max_projects: 2
   max_bullets_per_listing: 4
   delta_margin: 0.15

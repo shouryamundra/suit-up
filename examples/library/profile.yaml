@@ -1,0 +1,10 @@
+# Fictional. This example library exists so the test suite and a fresh clone have
+# something to run against without anyone's real resume being in the repository.
+name: "Alex Rivera"
+links:
+  - label: "alex.rivera@example.com"
+    url: "mailto:alex.rivera@example.com"
+  - label: "linkedin.com/in/example"
+    url: "https://www.linkedin.com/in/example/"
+  - label: "github.com/example"
+    url: "https://github.com/example"

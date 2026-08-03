@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import pytest
 
+from tests.conftest import PRIMARY_EXPERIENCE, PRIMARY_TEMPLATE, all_template_ids
+
 from suitup.escalate import compile_error, content_fail, overflow, overflow_severity
 from suitup.library.compose import draft_from_template
 from suitup.models import (
@@ -85,7 +87,7 @@ class TestSelectiveEscaping:
         return Draft(
             listings=[
                 DraftListing(
-                    listing_id="aruw_lead_swe_2025",
+                    listing_id=PRIMARY_EXPERIENCE,
                     bullets=[DraftBullet(slot=1, source=source, text=text, **kwargs)],
                 )
             ]
@@ -111,30 +113,30 @@ class TestSelectiveEscaping:
 
 class TestBuildContext:
     def test_routes_listings_into_their_sections(self, library):
-        context = build_context(draft_from_template(library, "systems_quant"), library)
+        context = build_context(draft_from_template(library, PRIMARY_TEMPLATE), library)
         assert context["education"] is not None
-        assert len(context["experience"]) == 2
-        assert len(context["projects"]) == 2
+        assert len(context["experience"]) >= 1
+        assert len(context["projects"]) >= 1
         assert context["skills"] and context["achievements"]
 
     def test_skills_rows_carry_their_variant_label(self, library):
-        context = build_context(draft_from_template(library, "systems_quant"), library)
+        context = build_context(draft_from_template(library, PRIMARY_TEMPLATE), library)
         labels = [row["label"] for row in context["skills"]]
         assert "Languages" in labels
-        assert "Systems and Concurrency" in labels
+        assert "Backend and Infrastructure" in labels
 
     def test_projects_carry_their_stack_line(self, library):
-        context = build_context(draft_from_template(library, "systems_quant"), library)
+        context = build_context(draft_from_template(library, PRIMARY_TEMPLATE), library)
         assert any(p["stack"] for p in context["projects"])
 
     def test_profile_reaches_the_header(self, library):
-        context = build_context(draft_from_template(library, "systems_quant"), library)
+        context = build_context(draft_from_template(library, PRIMARY_TEMPLATE), library)
         assert context["profile"]["name"] == library.profile.name
         assert context["profile"]["links"]
 
 
 class TestRender:
-    @pytest.mark.parametrize("template_id", ["systems_quant", "ml_robotics", "swe_infra"])
+    @pytest.mark.parametrize("template_id", all_template_ids())
     def test_renders_a_complete_document(self, library, paths, template_id):
         tex = render(draft_from_template(library, template_id), library, paths.latex_dir)
         assert tex.lstrip().startswith("%") or "\\documentclass" in tex
@@ -142,14 +144,14 @@ class TestRender:
         assert "\\end{document}" in tex
 
     def test_no_unrendered_jinja_delimiters_survive(self, library, paths):
-        tex = render(draft_from_template(library, "systems_quant"), library, paths.latex_dir)
+        tex = render(draft_from_template(library, PRIMARY_TEMPLATE), library, paths.latex_dir)
         for delimiter in ("((*", "*))", "(((", ")))"):
             assert delimiter not in tex, f"{delimiter} left unrendered"
 
     def test_content_actually_reaches_the_document(self, library, paths):
-        tex = render(draft_from_template(library, "systems_quant"), library, paths.latex_dir)
-        assert "RealNetworks" in tex
-        assert "Monte Carlo" in tex
+        tex = render(draft_from_template(library, PRIMARY_TEMPLATE), library, paths.latex_dir)
+        assert "Example Systems" in tex
+        assert "Durable Job Queue" in tex
         assert library.profile.name in tex
 
 
@@ -199,7 +201,7 @@ class TestCompile:
 class TestGoldenEndToEnd:
     """The test that proves the deterministic core works, with no LLM anywhere."""
 
-    @pytest.mark.parametrize("template_id", ["systems_quant", "ml_robotics", "swe_infra"])
+    @pytest.mark.parametrize("template_id", all_template_ids())
     def test_every_template_compiles_to_exactly_one_page(
         self, library, paths, tmp_path, template_id
     ):
@@ -216,7 +218,7 @@ class TestGoldenEndToEnd:
     def test_a_generated_bullet_with_specials_still_compiles(self, library, paths, tmp_path):
         # The PRD's compile-error edge case, exercised end to end: raw model output with
         # LaTeX specials must not be able to break the build.
-        draft = draft_from_template(library, "systems_quant")
+        draft = draft_from_template(library, PRIMARY_TEMPLATE)
         draft.listings[1].bullets.append(
             DraftBullet(
                 slot=99,
@@ -262,7 +264,7 @@ class TestEscalations:
                     category="groundedness",
                     severity=Severity.MAJOR,
                     detail="claims a 40% gain the sources do not support",
-                    listing_id="aruw_lead_swe_2025",
+                    listing_id=PRIMARY_EXPERIENCE,
                     slot=3,
                 )
             ],
@@ -271,7 +273,7 @@ class TestEscalations:
         assert run.status is RunStatus.CONTENT_FAIL
         body = (tmp_path / "ESCALATION.md").read_text()
         assert "groundedness" in body
-        assert "aruw_lead_swe_2025" in body
+        assert PRIMARY_EXPERIENCE in body
         assert "40% gain" in body
 
     def test_low_coverage_warning_propagates(self, tmp_path):

@@ -8,7 +8,6 @@ because each file is individually valid and only the references between them are
 
 from __future__ import annotations
 
-from pathlib import Path
 
 import pytest
 import yaml
@@ -16,7 +15,13 @@ import yaml
 from suitup.library.overlap import overlaps_against_essential, overlaps_in_render
 from suitup.models import BulletRole, Listing, ListingType, Template
 
-LIBRARY = Path(__file__).resolve().parent.parent / "library"
+from tests.conftest import EXAMPLE_LIBRARY, PROJECT_ROOT
+
+# The example library ships with the repo; the user's real one is untracked. Both are
+# checked when both exist, because a rule worth enforcing on the example is worth
+# enforcing on the library that actually gets used.
+LIBRARY = EXAMPLE_LIBRARY
+REAL_LIBRARY = PROJECT_ROOT / "library"
 
 
 def load_listings() -> dict[str, Listing]:
@@ -184,7 +189,7 @@ class TestTemplates:
         # exceeding the caps means the caps are wrong, not the template.
         from suitup.config import load_config
 
-        caps = load_config(root=LIBRARY.parent).caps
+        caps = load_config(root=PROJECT_ROOT).caps
         for template in templates.values():
             by_type: dict[ListingType, int] = {}
             for listing_id in template.listing_ids:
@@ -196,7 +201,7 @@ class TestTemplates:
     def test_no_listing_exceeds_the_bullet_cap(self, templates, listings):
         from suitup.config import load_config
 
-        cap = load_config(root=LIBRARY.parent).caps.max_bullets_per_listing
+        cap = load_config(root=PROJECT_ROOT).caps.max_bullets_per_listing
         for template in templates.values():
             for listing_id in template.listing_ids:
                 listing = listings[listing_id]
@@ -227,3 +232,55 @@ class TestSeedConfigurations:
         configs = json.loads((LIBRARY / "configurations.json").read_text())
         seeded = {entry["template_id"] for entry in configs.values()}
         assert seeded == set(templates), f"seeded {seeded}, templates {set(templates)}"
+
+
+@pytest.mark.skipif(not REAL_LIBRARY.is_dir(), reason="no personal library on this machine")
+class TestRealLibrary:
+    """The same rules, applied to the user's untracked library when it is present.
+
+    A rule worth enforcing on the example is worth enforcing on the library that actually
+    produces resumes. These are skipped on a fresh clone, where only the example exists.
+    """
+
+    @pytest.fixture(scope="class")
+    def real(self):
+        from suitup.config import Paths
+        from suitup.library.loader import load_library
+
+        return load_library(Paths.from_root(PROJECT_ROOT, library_dir=REAL_LIBRARY))
+
+    def test_loads_and_cross_validates(self, real):
+        assert real.listings and real.templates
+
+    def test_essential_bullets_are_not_restated_as_variants(self, real):
+        offenders = [
+            str(o)
+            for listing in real.listings.values()
+            for o in overlaps_against_essential(listing)
+        ]
+        assert not offenders, "essential bullet restated elsewhere:\n  " + "\n  ".join(offenders)
+
+    def test_no_template_renders_repeated_content(self, real):
+        offenders = [
+            f"{template.id}: {overlap}"
+            for template in real.templates.values()
+            for listing_id in template.listing_ids
+            for overlap in overlaps_in_render(
+                real.listings[listing_id], template.default_variants.get(listing_id, {})
+            )
+        ]
+        assert not offenders, "templates rendering repeated content:\n  " + "\n  ".join(offenders)
+
+    def test_seeds_are_reproducible(self, real):
+        import json
+
+        from suitup.library.compose import draft_from_template, key_for_draft
+        from suitup.library.configs import resume_key
+
+        seeds = json.loads((REAL_LIBRARY / "configurations.json").read_text())
+        for entry in seeds.values():
+            rebuilt = key_for_draft(real, draft_from_template(real, entry["template_id"]))
+            assert rebuilt == resume_key(entry["listing_keys"]), (
+                f"{entry['template_id']}: composition key drifted from its seed; "
+                f"regenerate configurations.json"
+            )

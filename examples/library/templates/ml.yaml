@@ -1,0 +1,28 @@
+# Example career direction: applied machine learning.
+id: ml
+name: "Applied Machine Learning"
+description: >
+  Model work with the evaluation discipline to back it up, plus enough systems
+  experience to ship it.
+tags: [machine-learning, data-science, pytorch, evaluation, python]
+listing_ids:
+  - education_state_u
+  - backend_intern
+  - research_assistant
+  - ml_project
+  - skills
+  - awards
+default_variants:
+  education_state_u:
+    2: v2_ml
+  backend_intern:
+    2: v2_throughput
+    3: v1_testing
+  research_assistant:
+    2: v2_implementation
+    3: v1_writing
+  ml_project:
+    2: v1_methodology
+  skills:
+    2: v2_ml
+    3: v1_practices

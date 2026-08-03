@@ -1,0 +1,13 @@
+id: awards
+type: achievements
+title: "Awards"
+tags: [achievements]
+bullets:
+  - slot: 1
+    role: essential
+    text: >
+      Dean's List (four semesters); first place, State University Hackathon 2025
+metadata:
+  approved: true
+  last_reviewed: "2026-08-03"
+  source: ["example"]
