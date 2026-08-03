@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Agent working context — local notes, not project history
+AGENT/
+
 # Python
 __pycache__/
 *.py[cod]
