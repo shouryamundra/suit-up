@@ -1,0 +1,92 @@
+# Role -> provider:model routing.
+#
+# This file is the whole swappability surface. Every role can run on every provider —
+# nothing in the pipeline assumes a vendor, and no agent module names one. Routing
+# resolves in three layers, each beating the one before it:
+#
+#   1. `roles:`              the defaults below
+#   2. `profiles.<name>:`    a named set of overrides, picked with --profile <name>
+#   3. `--model role=p:m`    explicit per-role override for a single invocation
+#
+# Run `suitup models --check` to verify reachability and list the model IDs each
+# provider actually offers — use that to confirm names rather than trusting them.
+
+providers:
+  mistral:
+    base_url: https://api.mistral.ai/v1
+    api_key_env: MISTRAL_API_KEY
+    tier: schema        # native json_schema structured output
+
+  gemini:
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_env: GEMINI_API_KEY
+    tier: schema
+
+  ollama:
+    base_url: http://localhost:11434/v1
+    api_key_env: null   # local, no auth
+    tier: json_object   # weaker: no schema enforcement, leans on validate-and-retry
+
+# Adding a provider is just another entry above — anything speaking OpenAI-compatible
+# HTTP works, including a second Ollama host or an OpenRouter endpoint.
+
+settings:
+  # The Critic should evaluate blind to the Drafter. Routing both to the same model
+  # makes that nominal, so it is rejected at load time. Set false to allow it anyway.
+  require_blind_critique: true
+
+roles:
+  # Extraction and structured judgment. Schema adherence matters more than prose here.
+  jd_analyst:
+    provider: mistral
+    model: mistral-small-latest
+  listing_selector:
+    provider: mistral
+    model: mistral-small-latest
+  bullet_selector:
+    provider: mistral
+    model: mistral-small-latest
+
+  # Writing quality matters most on this node, so it gets the most sampling room.
+  drafter:
+    provider: gemini
+    model: gemini-flash-latest
+    temperature: 0.4
+
+  # Deliberately a different vendor from the drafter, so the critique is genuinely
+  # blind rather than the same model grading its own reasoning.
+  critic:
+    provider: mistral
+    model: mistral-large-latest
+    temperature: 0.0
+
+  # Cheap, narrow, high-volume. Local is fine.
+  tagger:
+    provider: ollama
+    model: llama3.1:latest
+
+# Named routings, selected with `--profile <name>`. Each entry overrides only the roles
+# it lists; everything else falls through to `roles:` above.
+profiles:
+  # Zero cost, fully offline. Quality on the drafter will be noticeably worse.
+  local:
+    jd_analyst:       { provider: ollama, model: llama3.1:latest }
+    listing_selector: { provider: ollama, model: llama3.1:latest }
+    bullet_selector:  { provider: ollama, model: llama3.1:latest }
+    drafter:          { provider: ollama, model: llama3.1:latest, temperature: 0.4 }
+    critic:           { provider: ollama, model: llama3:latest }
+    tagger:           { provider: ollama, model: llama3.1:latest }
+
+  # One vendor, one rate limit to reason about.
+  mistral-only:
+    jd_analyst:       { provider: mistral, model: mistral-small-latest }
+    listing_selector: { provider: mistral, model: mistral-small-latest }
+    bullet_selector:  { provider: mistral, model: mistral-small-latest }
+    drafter:          { provider: mistral, model: mistral-large-latest, temperature: 0.4 }
+    critic:           { provider: mistral, model: mistral-small-latest }
+    tagger:           { provider: mistral, model: mistral-small-latest }
+
+  # Spend where it shows: strongest model on the two nodes that write and judge.
+  quality:
+    drafter: { provider: gemini,  model: gemini-flash-latest, temperature: 0.4 }
+    critic:  { provider: mistral, model: mistral-large-latest }

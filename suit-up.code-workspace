@@ -1,0 +1,50 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "/opt/anaconda3/envs/suitup/bin/python",
+    "python.terminal.activateEnvironment": true,
+
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestArgs": ["tests"],
+
+    "[python]": {
+      "editor.defaultFormatter": "charliermarsh.ruff",
+      "editor.formatOnSave": true,
+      "editor.rulers": [100],
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+      }
+    },
+
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/*.egg-info": true,
+      "**/.pytest_cache": true,
+      "**/.ruff_cache": true
+    },
+
+    "search.exclude": {
+      "runs/**": true,
+      "**/*.aux": true,
+      "**/*.log": true
+    },
+
+    "files.associations": {
+      "*.tex.j2": "latex",
+      "models.yaml": "yaml"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "charliermarsh.ruff",
+      "redhat.vscode-yaml",
+      "james-yu.latex-workshop"
+    ]
+  }
+}
