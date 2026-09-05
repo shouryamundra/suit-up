@@ -1,0 +1,44 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Agent working context — local notes, not project history
+AGENT/
+
+# The real component library: actual resume content, employers, contact details.
+# Personal data, never committed. `examples/library/` is the fictional stand-in the
+# test suite and a fresh clone run against. Point SUITUP_LIBRARY at your own copy,
+# or keep it here — either way it stays out of git.
+#
+# The leading slash matters: an unanchored `library/` matches at any depth and would
+# silently swallow examples/library/, which must stay tracked.
+/library/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+
+# Generated library cache
+library/index.json
+
+# Run artifacts
+runs/
+
+# LaTeX build droppings
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# macOS
+.DS_Store

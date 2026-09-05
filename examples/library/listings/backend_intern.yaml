@@ -1,0 +1,46 @@
+id: backend_intern
+type: experience
+title: "Software Engineering Intern"
+context:
+  org: "Example Systems Inc."
+  dates: "Jun. 2026 -- Sept. 2026"
+  location: "Remote"
+tags: [backend, distributed-systems, api, testing, python]
+bullets:
+  - slot: 1
+    role: essential
+    text: >
+      Built and shipped features across a Python service handling 40M daily API requests.
+  - slot: 2
+    role: flexible
+    variants:
+      - variant_id: v1_latency
+        keywords: [caching, p99 latency, performance, profiling, optimization]
+        text: >
+          Cut p99 endpoint latency 45\% (820ms to 450ms) by introducing a read-through
+          cache and removing three redundant database round trips per request.
+      - variant_id: v2_throughput
+        keywords: [throughput, scalability, load testing, concurrency]
+        text: >
+          Doubled sustained write throughput by batching inserts behind a bounded queue,
+          verified under load testing at 3\texttimes{} peak production traffic.
+  - slot: 3
+    role: flexible
+    variants:
+      - variant_id: v1_testing
+        keywords: [testing, pytest, CI/CD, code coverage, regression]
+        text: >
+          Raised service test coverage from 34\% to 81\% and wired the suite into CI,
+          catching two regressions before release in the first month.
+  - slot: 4
+    role: flexible
+    variants:
+      - variant_id: v1_oncall
+        keywords: [observability, monitoring, on-call, incident response, debugging]
+        text: >
+          Added structured logging and dashboards for the team's three noisiest alerts,
+          cutting mean time to diagnosis on the on-call rotation.
+metadata:
+  approved: true
+  last_reviewed: "2026-08-03"
+  source: ["example"]

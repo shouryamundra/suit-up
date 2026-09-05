@@ -1,0 +1,9 @@
+# Poetry installs into the active conda env (`suitup`) rather than creating its own
+# virtualenv. Activate before installing:
+#
+#   conda activate suitup && poetry install
+#
+# Without activation, `poetry install` lands in conda `base`.
+[virtualenvs]
+create = false
+in-project = false

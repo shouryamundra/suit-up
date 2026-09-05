@@ -1,0 +1,30 @@
+{
+  "education_state_u|slot1:essential|slot2:v1_systems||backend_intern|slot1:essential|slot2:v1_latency|slot3:v1_testing|slot4:v1_oncall||research_assistant|slot1:essential|slot2:v1_benchmark||queue_project|slot1:essential|slot2:v1_design||skills|slot1:essential|slot2:v1_backend|slot3:v1_practices||awards|slot1:essential": {
+    "approved": true,
+    "reviewed_at": "2026-08-03",
+    "template_id": "backend",
+    "listing_keys": [
+      "education_state_u|slot1:essential|slot2:v1_systems",
+      "backend_intern|slot1:essential|slot2:v1_latency|slot3:v1_testing|slot4:v1_oncall",
+      "research_assistant|slot1:essential|slot2:v1_benchmark",
+      "queue_project|slot1:essential|slot2:v1_design",
+      "skills|slot1:essential|slot2:v1_backend|slot3:v1_practices",
+      "awards|slot1:essential"
+    ],
+    "note": "Example seed. Fictional content; exists so the suite has an approved composition to test against."
+  },
+  "education_state_u|slot1:essential|slot2:v2_ml||backend_intern|slot1:essential|slot2:v2_throughput|slot3:v1_testing||research_assistant|slot1:essential|slot2:v2_implementation|slot3:v1_writing||ml_project|slot1:essential|slot2:v1_methodology||skills|slot1:essential|slot2:v2_ml|slot3:v1_practices||awards|slot1:essential": {
+    "approved": true,
+    "reviewed_at": "2026-08-03",
+    "template_id": "ml",
+    "listing_keys": [
+      "education_state_u|slot1:essential|slot2:v2_ml",
+      "backend_intern|slot1:essential|slot2:v2_throughput|slot3:v1_testing",
+      "research_assistant|slot1:essential|slot2:v2_implementation|slot3:v1_writing",
+      "ml_project|slot1:essential|slot2:v1_methodology",
+      "skills|slot1:essential|slot2:v2_ml|slot3:v1_practices",
+      "awards|slot1:essential"
+    ],
+    "note": "Example seed. Fictional content; exists so the suite has an approved composition to test against."
+  }
+}

@@ -1,0 +1,39 @@
+id: research_assistant
+type: experience
+title: "Undergraduate Research Assistant"
+context:
+  org: "State University Systems Lab"
+  dates: "Jan. 2025 -- Present"
+  location: "Springfield, USA"
+tags: [research, distributed-systems, benchmarking, cpp, academic]
+bullets:
+  - slot: 1
+    role: essential
+    text: >
+      Research consistency trade-offs in replicated key-value stores under a faculty
+      advisor, contributing to a lab codebase used by six students.
+  - slot: 2
+    role: flexible
+    variants:
+      - variant_id: v1_benchmark
+        keywords: [benchmarking, replication, consistency, measurement, evaluation]
+        text: >
+          Built the benchmark harness the lab now uses to compare replication schemes,
+          reducing a full evaluation sweep from two days to under three hours.
+      - variant_id: v2_implementation
+        keywords: [consensus, Raft, distributed systems, C++, implementation]
+        text: >
+          Implemented a Raft-based replication layer in C++ and validated leader election
+          and log compaction against an injected-fault test suite.
+  - slot: 3
+    role: flexible
+    variants:
+      - variant_id: v1_writing
+        keywords: [technical writing, publication, presentation, research communication]
+        text: >
+          Co-authored the workshop paper reporting the results and presented the findings
+          at the department's annual research symposium.
+metadata:
+  approved: true
+  last_reviewed: "2026-08-03"
+  source: ["example"]

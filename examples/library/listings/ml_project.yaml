@@ -1,0 +1,31 @@
+id: ml_project
+type: project
+title: "Review Sentiment Classifier"
+context:
+  org: "Coursework Project"
+  dates: "Sep. 2025 -- Dec. 2025"
+  stack: "Python, PyTorch, scikit-learn"
+tags: [machine-learning, nlp, pytorch, data-analysis, python]
+bullets:
+  - slot: 1
+    role: essential
+    text: >
+      Trained a sentiment classifier on 50,000 product reviews, reaching 91\% test accuracy
+      against a 76\% bag-of-words baseline.
+  - slot: 2
+    role: flexible
+    variants:
+      - variant_id: v1_methodology
+        keywords: [cross-validation, hyperparameter tuning, evaluation, overfitting]
+        text: >
+          Used stratified cross-validation and a held-out test split to tune
+          hyperparameters without leaking evaluation data into model selection.
+      - variant_id: v2_data
+        keywords: [data cleaning, class imbalance, preprocessing, feature engineering]
+        text: >
+          Corrected a 9:1 class imbalance through weighted sampling, which moved minority
+          class recall from 0.41 to 0.78 with no loss in overall accuracy.
+metadata:
+  approved: true
+  last_reviewed: "2026-08-03"
+  source: ["example"]

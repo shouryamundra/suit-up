@@ -1,0 +1,31 @@
+id: skills
+type: skills
+title: "Technical Skills"
+tags: [skills, ats]
+bullets:
+  - slot: 1
+    role: essential
+    label: "Languages"
+    text: "Python, Go, Java, SQL, TypeScript"
+  - slot: 2
+    role: flexible
+    variants:
+      - variant_id: v1_backend
+        label: "Backend and Infrastructure"
+        keywords: [PostgreSQL, Redis, Docker, Kubernetes, REST, gRPC, AWS, backend]
+        text: "PostgreSQL, Redis, Docker, Kubernetes, REST and gRPC APIs, AWS"
+      - variant_id: v2_ml
+        label: "Machine Learning"
+        keywords: [PyTorch, scikit-learn, pandas, NumPy, machine learning, NLP]
+        text: "PyTorch, scikit-learn, pandas, NumPy, Jupyter"
+  - slot: 3
+    role: flexible
+    variants:
+      - variant_id: v1_practices
+        label: "Practices"
+        keywords: [testing, CI/CD, code review, Agile, observability, documentation]
+        text: "Unit and integration testing, CI/CD, code review, Agile, observability"
+metadata:
+  approved: true
+  last_reviewed: "2026-08-03"
+  source: ["example"]

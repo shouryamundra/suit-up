@@ -1,0 +1,32 @@
+id: queue_project
+type: project
+title: "Durable Job Queue"
+context:
+  org: "Personal Project"
+  dates: "Mar. 2026 -- Present"
+  stack: "Go, PostgreSQL, Docker"
+tags: [distributed-systems, backend, concurrency, go, databases]
+bullets:
+  - slot: 1
+    role: essential
+    text: >
+      Built a job queue with at-least-once delivery, exponential backoff, and a dead-letter
+      queue, backed by PostgreSQL advisory locks.
+  - slot: 2
+    role: flexible
+    variants:
+      - variant_id: v1_design
+        keywords: [trade-offs, at-least-once, idempotency, systems design, correctness]
+        text: >
+          Chose at-least-once delivery with idempotency keys over exactly-once semantics,
+          trading a correctness burden on consumers for a system that stays available
+          during a partition.
+      - variant_id: v2_performance
+        keywords: [throughput, benchmarking, concurrency, workers, performance]
+        text: >
+          Sustained 12,000 jobs per minute across 8 concurrent workers, with backpressure
+          bounding memory use under bursty load.
+metadata:
+  approved: true
+  last_reviewed: "2026-08-03"
+  source: ["example"]

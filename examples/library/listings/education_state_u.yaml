@@ -1,0 +1,29 @@
+id: education_state_u
+type: education
+title: "B.S. in Computer Science"
+context:
+  org: "State University"
+  dates: "Sep. 2023 -- Jun. 2027"
+  location: "Springfield, USA"
+tags: [education, computer-science]
+bullets:
+  - slot: 1
+    role: essential
+    text: "GPA: 3.8/4.0"
+  - slot: 2
+    role: flexible
+    variants:
+      - variant_id: v1_systems
+        keywords: [data structures, algorithms, operating systems, databases, networks]
+        text: >
+          \textbf{Relevant Coursework:} Data Structures and Algorithms, Operating Systems,
+          Databases, Computer Networks
+      - variant_id: v2_ml
+        keywords: [machine learning, linear algebra, statistics, algorithms]
+        text: >
+          \textbf{Relevant Coursework:} Machine Learning, Linear Algebra, Probability and
+          Statistics, Data Structures and Algorithms
+metadata:
+  approved: true
+  last_reviewed: "2026-08-03"
+  source: ["example"]

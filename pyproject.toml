@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "suitup"
+version = "0.1.0"
+description = "Resume tailoring agent — assembles a one-page resume from a library of pre-approved bullet variants"
+authors = ["shourya-isr"]
+readme = "README.md"
+packages = [{ include = "suitup" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.9"
+pydantic-settings = "^2.5"
+typer = "^0.15"
+rich = "^13.8"
+jinja2 = "^3.1"
+pyyaml = "^6.0"
+"ruamel.yaml" = "^0.18"
+pypdf = "^5.0"
+openai = "^1.50"
+python-dotenv = "^1.0"
+langgraph = "^0.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3"
+ruff = "^0.6"
+
+[tool.poetry.scripts]
+suitup = "suitup.cli:app"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "live: hits a real provider over the network; deselected by default",
+]
+addopts = "-m 'not live'"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
